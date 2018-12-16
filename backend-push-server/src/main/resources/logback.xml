@@ -1,0 +1,139 @@
+<configuration>
+	<!-- 添加应用ID属性 -->
+	
+	<property name="enterprise" value="didi" />
+	
+	<!-- 添加应用ID属性 -->
+	<property name="appId" value="backend-push-server" />
+
+	<property name="log.base" value="/home/az-user/apps/package/${enterprise}/application/${appId}" />
+
+	<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{LIP:-#}][%X{traceNo:-#}] &lt;%t&gt; %logger{80} :%msg%n" />
+	
+	<!-- RESTful报文输出节点 -->   
+     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender>
+	
+     <!-- RESTful报文输出节点 -->   
+     <appender name="RS-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.base}/restful.log</file>		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.base}/%d{yyyy-MM-dd}/restful.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+			<maxHistory>90</maxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>150MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- JDBC输出节点 -->   
+    <appender name="JDBC-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.base}/jdbc.log</file>		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.base}/%d{yyyy-MM-dd}/jdbc.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+			<maxHistory>90</maxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>150MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- BIZ输出节点 -->   
+    <appender name="BIZ-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.base}/biz.log</file>		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.base}/%d{yyyy-MM-dd}/biz.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+			<maxHistory>90</maxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>150MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender>
+
+	<!-- 根输出节点 -->   
+    <appender name="ROOT-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.base}/root.log</file>		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.base}/%d{yyyy-MM-dd}/root.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+			<maxHistory>90</maxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>150MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<!--#### 异步日志输出节点包装 ####-->
+		
+	<appender name ="ASYNC-RS-APPENDER" class= "ch.qos.logback.classic.AsyncAppender"> 
+	    <discardingThreshold>0</discardingThreshold>   
+	    <queueSize>40960</queueSize>  
+	    <appender-ref ref ="RS-APPENDER"/>  
+	</appender>
+	
+	<appender name ="ASYNC-JDBC-APPENDER" class= "ch.qos.logback.classic.AsyncAppender"> 
+	    <discardingThreshold>0</discardingThreshold>   
+	    <queueSize>81920</queueSize>  
+	    <appender-ref ref ="JDBC-APPENDER"/>  
+	</appender>
+
+	<appender name ="ASYNC-BIZ-APPENDER" class= "ch.qos.logback.classic.AsyncAppender"> 
+	    <discardingThreshold>0</discardingThreshold>   
+	    <queueSize>40960</queueSize>  
+	    <appender-ref ref ="BIZ-APPENDER"/>  
+	</appender> 
+
+	<appender name ="ASYNC-ROOT-APPENDER" class= "ch.qos.logback.classic.AsyncAppender"> 
+	    <discardingThreshold>0</discardingThreshold>   
+	    <queueSize>10240</queueSize>  
+	    <appender-ref ref ="ROOT-APPENDER"/>  
+	</appender>
+
+	<!--#### JDBC Logger ####-->
+	<logger name="com.alibaba.druid" level="debug" additivity="false">
+		<appender-ref ref="ASYNC-JDBC-APPENDER"/>
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="org.apache.ibatis.logging.slf4j" level="debug" additivity="false">
+		<appender-ref ref="ASYNC-JDBC-APPENDER"/>
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="org.springframework.jdbc.datasource" level="debug" additivity="false">
+		<appender-ref ref="ASYNC-JDBC-APPENDER"/>
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="org.mybatis.spring.transaction" level="debug" additivity="false">
+		<appender-ref ref="ASYNC-JDBC-APPENDER"/>
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="com.basic.backend.push.service.dal" level="debug" additivity="false">
+		<appender-ref ref="ASYNC-JDBC-APPENDER"/>
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<!--#### BIZ-APPENDER ####-->
+	<logger name="com.basic.backend.push" level="DEBUG" additivity="false">
+		<appender-ref ref="ASYNC-BIZ-APPENDER" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<!--#### ROOT Logger ####-->
+	<root level="DEBUG">
+		<appender-ref ref="ASYNC-ROOT-APPENDER" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>  
